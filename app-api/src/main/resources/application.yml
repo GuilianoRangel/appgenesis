@@ -1,0 +1,57 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/triprequest4
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  messages:
+    basename: messages
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tagsSorter: alpha
+    operationsSorter: method
+    displayRequestDuration: true
+    docExpansion: none
+app:
+  api:
+    swagger:
+      title: Trip Request API X
+  seed:
+    enabled: true
+  permissions:
+    scan:
+      enabled: true
+      admin-group-name: ADMIN
+      base-packages:
+        - br.ueg.appgenesis.security.usecase
+        - com.triprequest.base.tripcategory.usecase
+
+
+security:
+  jwt:
+    # Gere um segredo base64 de pelo menos 32 bytes. Exemplo para teste:
+    # echo -n 'this-is-a-very-strong-secret-key-32bytes!!' | base64
+    secret-base64: dGhpcy1pcy1hLXZlcnktc3Ryb25nLXNlY3JldC1rZXktMzJieXRlcyEh
+    issuer: triprequest
+    audience: triprequest-clients
+    clock-skew-seconds: 60
+
+
+server:
+  port: 8080
+  url: http://localhost:8080
+
+logging:
+  level:
+    br.ueg.app: INFO
+    org.springframework.web: INFO
