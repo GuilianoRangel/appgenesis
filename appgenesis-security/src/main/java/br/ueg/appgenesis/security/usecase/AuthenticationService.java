@@ -1,6 +1,7 @@
 package br.ueg.appgenesis.security.usecase;
 
 import br.ueg.appgenesis.core.domain.security.DomainAuthenticationException;
+import br.ueg.appgenesis.core.domain.security.DomainUnauthenticationException;
 import br.ueg.appgenesis.core.domain.validation.DomainViolation;
 import br.ueg.appgenesis.core.security.CredentialContextPort;
 import br.ueg.appgenesis.core.security.CredentialPrincipal;
@@ -112,21 +113,21 @@ public class AuthenticationService {
     /** Fluxo de refresh com rotação atômica (revoga o antigo). */
     public RefreshResult refresh(String refreshTokenClear) {
         if (refreshTokenClear == null || refreshTokenClear.isBlank()) {
-            throw new DomainAuthenticationException("refresh_invalid");
+            throw new DomainUnauthenticationException("refresh_invalid");
         }
         String hash = sha256(refreshTokenClear); // ou passwordHash.matches strategy
         var stored = refreshTokenPort.findByTokenHash(hash)
-                .orElseThrow(() -> new DomainAuthenticationException("refresh_invalid"));
+                .orElseThrow(() -> new DomainUnauthenticationException("refresh_invalid"));
 
         if (stored.revoked() || stored.expiresAt().isBefore(Instant.now())) {
-            throw new DomainAuthenticationException("refresh_expired_or_revoked");
+            throw new DomainUnauthenticationException("refresh_expired_or_revoked");
         }
 
         Long userId = stored.userId();
         var user = userRepo.findById(userId)
-                .orElseThrow(() -> new DomainAuthenticationException("user_not_found"));
+                .orElseThrow(() -> new DomainUnauthenticationException("user_not_found"));
         if (!"ACTIVE".equalsIgnoreCase(user.getStatus())) {
-            throw new DomainAuthenticationException("user_inactive");
+            throw new DomainUnauthenticationException("user_inactive");
         }
 
         // rotação: revoga o antigo e cria outro

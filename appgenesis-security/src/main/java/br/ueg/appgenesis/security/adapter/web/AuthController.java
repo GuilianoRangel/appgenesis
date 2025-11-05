@@ -21,13 +21,18 @@ public class AuthController {
 
     public AuthController(AuthenticationService authService) { this.authService = authService; }
 
-    @GetMapping("/me")
+    @GetMapping(path = "/me",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     @Operation(summary = "Retorna o principal autenticado (extraído do contexto)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Principal atual",
-                    content = @Content(schema = @Schema(implementation = PrincipalResponseDTO.class))),
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = PrincipalResponseDTO.class))),
             @ApiResponse(responseCode = "401", description = "Não autenticado",
-                    content = @Content(schema = @Schema(implementation = org.springframework.http.ProblemDetail.class)))
+                    content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE,
+                            schema = @Schema(implementation = org.springframework.http.ProblemDetail.class)))
     })
     public ResponseEntity<PrincipalResponseDTO> me() {
         var principal = authService.currentPrincipal()
@@ -39,11 +44,15 @@ public class AuthController {
                 .build());
     }
 
-    @PostMapping("/introspect")
+    @PostMapping(path = "/introspect",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     @Operation(summary = "Valida um token e retorna suas informações (não altera contexto)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Resultado da introspecção",
-                    content = @Content(schema = @Schema(implementation = IntrospectResponseDTO.class)))
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = IntrospectResponseDTO.class)))
     })
     public ResponseEntity<IntrospectResponseDTO> introspect(@RequestBody IntrospectRequestDTO req) {
         var viewOpt = authService.introspect(req.getToken());
@@ -61,11 +70,15 @@ public class AuthController {
                 .build());
     }
 
-    @PostMapping("/login")
+    @PostMapping(path ="/login",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     @Operation(summary = "Autentica por username/senha e emite access/refresh tokens (JWT)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Autenticado",
-                    content = @Content(schema = @Schema(implementation = LoginResponseDTO.class))),
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = LoginResponseDTO.class))),
             @ApiResponse(responseCode = "401", description = "Credenciais inválidas",
                     content = @Content(
                             mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE,
@@ -88,13 +101,18 @@ public class AuthController {
                 .build());
     }
 
-    @PostMapping("/refresh")
+    @PostMapping(path = "/refresh",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     @Operation(summary = "Gera novo access token a partir de um refresh token válido (rotação automática)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Tokens renovados",
-                    content = @Content(schema = @Schema(implementation = RefreshResponseDTO.class))),
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = RefreshResponseDTO.class))),
             @ApiResponse(responseCode = "401", description = "Refresh inválido/expirado",
-                    content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
+                    content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE,
+                            schema = @Schema(implementation = ProblemDetail.class)))
     })
     public ResponseEntity<RefreshResponseDTO> refresh(@RequestBody RefreshRequestDTO req) {
         var r = authService.refresh(req.getRefreshToken());
@@ -107,12 +125,15 @@ public class AuthController {
                 .build());
     }
 
-    @PostMapping("/logout-all")
+    @PostMapping(path = "/logout-all",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     @Operation(summary = "Revoga todos os refresh tokens do usuário atual")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Revogados"),
             @ApiResponse(responseCode = "401", description = "Não autenticado",
-                    content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
+                    content = @Content(mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE,
+                            schema = @Schema(implementation = ProblemDetail.class)))
     })
     public ResponseEntity<Void> logoutAll() {
         // pega o principal do contexto

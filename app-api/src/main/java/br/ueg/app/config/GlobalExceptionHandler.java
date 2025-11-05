@@ -1,5 +1,6 @@
 package br.ueg.app.config;
 
+import br.ueg.appgenesis.core.domain.security.DomainUnauthenticationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -153,10 +154,30 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleDomainAuth(DomainAuthenticationException ex, HttpServletRequest req) {
         Object violations = ex.getViolations() != null ? ex.getViolations().stream().map(v -> v.getField() + ": " + v.getMessage()).toList() : "N/A";
         log.warn("DomainAuthenticationException: {} - Violations: {} - URL: {} - IP: {}", ex.getMessage(), violations, req.getRequestURI(), req.getRemoteAddr());
-        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         pd.setTitle("Unauthorized");
 
         String code = normalize(ex.getMessage());
+        pd.setDetail("Falha de autenticação");
+        pd.setProperty("code", "auth_fail");
+
+
+        List<DomainViolation> v = ex.getViolations();
+        if (v != null && !v.isEmpty()) {
+            pd.setProperty("violations", v.stream().map(this::toViolation).toList());
+        }
+        return pd;
+    }
+
+
+    // 401 do domínio
+    @ExceptionHandler(DomainUnauthenticationException.class)
+    public ProblemDetail handleDomainUnauth(DomainUnauthenticationException ex, HttpServletRequest req) {
+        String code = normalize(ex.getMessage());
+        log.warn("DomainUnauthenticationException: {} - URL: {} - IP: {} - Code: ", ex.getMessage(), req.getRequestURI(), req.getRemoteAddr(), code);
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
+        pd.setTitle("Unauthorized");
+
         switch (code) {
             case "token_expired" -> {
                 pd.setDetail("Token expirado");
