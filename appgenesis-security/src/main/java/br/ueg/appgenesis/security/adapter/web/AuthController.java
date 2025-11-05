@@ -7,9 +7,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.*;
 import io.swagger.v3.oas.annotations.responses.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,7 +27,7 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "Principal atual",
                     content = @Content(schema = @Schema(implementation = PrincipalResponseDTO.class))),
             @ApiResponse(responseCode = "401", description = "Não autenticado",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    content = @Content(schema = @Schema(implementation = org.springframework.http.ProblemDetail.class)))
     })
     public ResponseEntity<PrincipalResponseDTO> me() {
         var principal = authService.currentPrincipal()
@@ -67,7 +67,10 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "Autenticado",
                     content = @Content(schema = @Schema(implementation = LoginResponseDTO.class))),
             @ApiResponse(responseCode = "401", description = "Credenciais inválidas",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_PROBLEM_JSON_VALUE,
+                            schema = @Schema(implementation = org.springframework.http.ProblemDetail.class))
+            )
     })
     public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO req) {
         var out = authService.login(req.getUsername(), req.getPassword());

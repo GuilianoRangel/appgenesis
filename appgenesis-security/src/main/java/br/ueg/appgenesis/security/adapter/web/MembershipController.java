@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,7 +33,7 @@ public class MembershipController {
         @ApiResponse(responseCode = "204", description = "Associação realizada (ou já existente)"),
         @ApiResponse(responseCode = "422", description = "Regra de domínio violada",
             content = @Content(mediaType = "application/json",
-                schema = @Schema(implementation = ErrorResponse.class)))
+                schema = @Schema(implementation = org.springframework.http.ProblemDetail.class)))
     })
     public ResponseEntity<Void> assignUserToGroup(@PathVariable Long groupId, @PathVariable Long userId) {
         membershipService.assignUserToGroup(userId, groupId);
@@ -47,7 +46,7 @@ public class MembershipController {
         @ApiResponse(responseCode = "204", description = "Associação removida (ou já inexistente)"),
         @ApiResponse(responseCode = "422", description = "Regra de domínio violada",
             content = @Content(mediaType = "application/json",
-                schema = @Schema(implementation = ErrorResponse.class)))
+                schema = @Schema(implementation = org.springframework.http.ProblemDetail.class)))
     })
     public ResponseEntity<Void> revokeUserFromGroup(@PathVariable Long groupId, @PathVariable Long userId) {
         membershipService.revokeUserFromGroup(userId, groupId);
@@ -60,7 +59,7 @@ public class MembershipController {
         @ApiResponse(responseCode = "204", description = "Permissão concedida (ou já existente)"),
         @ApiResponse(responseCode = "422", description = "Regra de domínio violada",
             content = @Content(mediaType = "application/json",
-                schema = @Schema(implementation = ErrorResponse.class)))
+                schema = @Schema(implementation = org.springframework.http.ProblemDetail.class)))
     })
     public ResponseEntity<Void> grantPermissionToGroup(@PathVariable Long groupId, @PathVariable Long permissionId) {
         membershipService.grantPermissionToGroup(groupId, permissionId);
@@ -73,7 +72,7 @@ public class MembershipController {
         @ApiResponse(responseCode = "204", description = "Permissão revogada (ou já inexistente)"),
         @ApiResponse(responseCode = "422", description = "Regra de domínio violada",
             content = @Content(mediaType = "application/json",
-                schema = @Schema(implementation = ErrorResponse.class)))
+                schema = @Schema(implementation = org.springframework.http.ProblemDetail.class)))
     })
     public ResponseEntity<Void> revokePermissionFromGroup(@PathVariable Long groupId, @PathVariable Long permissionId) {
         membershipService.revokePermissionFromGroup(groupId, permissionId);
@@ -87,7 +86,7 @@ public class MembershipController {
             content = @Content(array = @ArraySchema(schema = @Schema(implementation = String.class)))),
         @ApiResponse(responseCode = "422", description = "Regra de domínio violada",
             content = @Content(mediaType = "application/json",
-                schema = @Schema(implementation = ErrorResponse.class)))
+                schema = @Schema(implementation = org.springframework.http.ProblemDetail.class)))
     })
     public ResponseEntity<List<String>> permissionsOfUser(@PathVariable Long userId) {
         return ResponseEntity.ok(authorizationService.permissionsOfUser(userId));
