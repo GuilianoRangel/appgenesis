@@ -1,5 +1,6 @@
 package br.ueg.appgenesis.core.infrastructure.web;
 
+import br.ueg.appgenesis.core.domain.error.ProblemDetail;
 import br.ueg.appgenesis.core.domain.pagination.PaginatedResult;
 import br.ueg.appgenesis.core.domain.pagination.PagingRequest;
 import br.ueg.appgenesis.core.domain.pagination.SortDirection;
@@ -46,7 +47,7 @@ public abstract class GenericDtoRestController<D, ID, ReqDTO, ResDTO> {
     @ApiResponse(responseCode = "200", description = "Recurso criado", useReturnTypeSchema = true)
     @ApiResponse(responseCode = "400", description = "Validação falhou",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = org.springframework.http.ProblemDetail.class)))
+                    schema = @Schema(implementation = ProblemDetail.class)))
     public ResponseEntity<ResDTO> create(
             @Valid
             @RequestBody(
@@ -68,8 +69,8 @@ public abstract class GenericDtoRestController<D, ID, ReqDTO, ResDTO> {
             description = "Retorna a lista de recursos."
     )
     @ApiResponse(responseCode = "200", description = "Lista retornada", useReturnTypeSchema = true)
-    @ApiResponse(responseCode = "400", description = "Validation error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = org.springframework.http.ProblemDetail.class)))
-    @ApiResponse(responseCode = "404", description = "Not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = org.springframework.http.ProblemDetail.class)))
+    @ApiResponse(responseCode = "400", description = "Validation error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class)))
+    @ApiResponse(responseCode = "404", description = "Not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class)))
     public ResponseEntity<List<ResDTO>> findAll() {
         List<ResDTO> out = service.findAll().stream()
                 .map(dtoMapper::toResponse)
@@ -83,7 +84,7 @@ public abstract class GenericDtoRestController<D, ID, ReqDTO, ResDTO> {
             description = "Retorna uma lista paginada de recursos."
     )
     @ApiResponse(responseCode = "200", description = "Lista paginada retornada", useReturnTypeSchema = true)
-    @ApiResponse(responseCode = "400", description = "Validation error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = org.springframework.http.ProblemDetail.class)))
+    @ApiResponse(responseCode = "400", description = "Validation error", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetail.class)))
     public ResponseEntity<PaginatedResult<ResDTO>> findAllPaginated(
             @Parameter(description = "Número da página (0-indexed)", example = "0")
             @RequestParam(name = "page", defaultValue = "0") int page,
@@ -113,7 +114,7 @@ public abstract class GenericDtoRestController<D, ID, ReqDTO, ResDTO> {
     @ApiResponse(responseCode = "200", description = "Encontrado", useReturnTypeSchema = true)
     @ApiResponse(responseCode = "404", description = "Não encontrado",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = org.springframework.http.ProblemDetail.class)))
+                    schema = @Schema(implementation = ProblemDetail.class)))
     public ResponseEntity<ResDTO> find(
             @Parameter(description = "Identificador do recurso", required = true)
             @PathVariable("id") ID id
@@ -134,10 +135,10 @@ public abstract class GenericDtoRestController<D, ID, ReqDTO, ResDTO> {
     @ApiResponse(responseCode = "200", description = "Atualizado", useReturnTypeSchema = true)
     @ApiResponse(responseCode = "404", description = "Não encontrado",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = org.springframework.http.ProblemDetail.class)))
+                    schema = @Schema(implementation = ProblemDetail.class)))
     @ApiResponse(responseCode = "400", description = "Validação falhou",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = org.springframework.http.ProblemDetail.class)))
+                    schema = @Schema(implementation = ProblemDetail.class)))
     public ResponseEntity<ResDTO> update(
             @Parameter(description = "Identificador do recurso", required = true)
             @PathVariable("id") ID id,
@@ -167,10 +168,10 @@ public abstract class GenericDtoRestController<D, ID, ReqDTO, ResDTO> {
     @ApiResponse(responseCode = "200", description = "Atualizado parcialmente", useReturnTypeSchema = true)
     @ApiResponse(responseCode = "404", description = "Não encontrado",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = org.springframework.http.ProblemDetail.class)))
+                    schema = @Schema(implementation = ProblemDetail.class)))
     @ApiResponse(responseCode = "400", description = "Validação falhou",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = org.springframework.http.ProblemDetail.class)))
+                    schema = @Schema(implementation = ProblemDetail.class)))
     public ResponseEntity<ResDTO> patch(
             @Parameter(description = "Identificador do recurso", required = true)
             @PathVariable("id") ID id,
@@ -195,7 +196,7 @@ public abstract class GenericDtoRestController<D, ID, ReqDTO, ResDTO> {
     @ApiResponse(responseCode = "204", description = "Removido sem conteúdo")
     @ApiResponse(responseCode = "404", description = "Não encontrado",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = @Schema(implementation = org.springframework.http.ProblemDetail.class)))
+                    schema = @Schema(implementation = ProblemDetail.class)))
     public ResponseEntity<Void> delete(
             @Parameter(description = "Identificador do recurso", required = true)
             @PathVariable("id") ID id

@@ -14,6 +14,7 @@ import br.ueg.appgenesis.security.port.DepartmentRepositoryPort;
 import br.ueg.appgenesis.security.port.UserRepositoryPort;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public class UserService extends GenericCrudService<User, Long> {
@@ -55,10 +56,12 @@ public class UserService extends GenericCrudService<User, Long> {
         ) {
             var user =  (User)args[0];
             var errors = new ArrayList<DomainViolation>();
-            repoDepartment.findById(user.getDepartmentId()).orElseGet(() -> {
-                errors.add(new DomainViolation("departmentId", "departamento inexistente (id:"+user.getDepartmentId()+")", "Exists"));
-                return null;
-            });
+            if(Objects.nonNull(user.getDepartmentId())) {
+                repoDepartment.findById(user.getDepartmentId()).orElseGet(() -> {
+                    errors.add(new DomainViolation("departmentId", "departamento inexistente (id:" + user.getDepartmentId() + ")", "Exists"));
+                    return null;
+                });
+            }
             //TODO: tratar apenas para Creação, para update e diferente.
             if (this.repoUser.findByUsername(user.getUsername()).isPresent()){
                 errors.add(new DomainViolation("userName", "Nome de Usuário já existe (username: "+user.getUsername()+")", "Exists"));

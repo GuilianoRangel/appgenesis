@@ -6,6 +6,8 @@ import br.ueg.appgenesis.security.adapter.web.jwt.JwtAuthenticationFilter;
 import br.ueg.appgenesis.security.adapter.web.security.ProblemDetailAccessDeniedHandler;
 import br.ueg.appgenesis.security.adapter.web.security.ProblemDetailAuthenticationEntryPoint;
 import br.ueg.appgenesis.security.port.auth.TokenProviderPort;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -15,10 +17,14 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.*;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig {
+    @Autowired
+    @Qualifier("handlerExceptionResolver")
+    private HandlerExceptionResolver resolver;
 
     @Bean
     public SecurityFilterChain filterChain(
@@ -42,7 +48,7 @@ public class WebSecurityConfig {
                         .authenticationEntryPoint(new ProblemDetailAuthenticationEntryPoint(objectMapper))
                         .accessDeniedHandler(new ProblemDetailAccessDeniedHandler(objectMapper))
                 )
-                .addFilterBefore(new JwtAuthenticationFilter(tokenProvider, credentialContext, skipPaths),
+                .addFilterBefore(new JwtAuthenticationFilter(tokenProvider, credentialContext, skipPaths, resolver),
                         UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

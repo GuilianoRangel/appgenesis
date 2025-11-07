@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
 import java.util.List;
@@ -21,13 +22,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final CredentialContextPort credentialContext;
     private final List<String> skipPatterns; // caminhos que NÃO devem ser filtrados
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
+    private final HandlerExceptionResolver resolver;
+
 
     public JwtAuthenticationFilter(TokenProviderPort tokenProvider,
                                    CredentialContextPort credentialContext,
-                                   List<String> skipPatterns) {
+                                   List<String> skipPatterns, HandlerExceptionResolver resolver) {
         this.tokenProvider = tokenProvider;
         this.credentialContext = credentialContext;
         this.skipPatterns = (skipPatterns == null ? List.of() : skipPatterns);
+        this.resolver = resolver;
     }
 
     // Ignora o filtro para rotas públicas
@@ -48,30 +52,37 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             var token = header.substring(7);
             var result = tokenProvider.parse(token);
 
-            switch (result.status()) {
-                case OK -> {
-                    var p = result.payload();
-                    CredentialPrincipal principal = new CredentialPrincipal() {
-                        @Override
-                        public Long getUserId() {
-                            return p.userId();
-                        }
+            try{
+                switch (result.status()) {
+                    case OK -> {
+                        var p = result.payload();
+                        CredentialPrincipal principal = new CredentialPrincipal() {
+                            @Override
+                            public Long getUserId() {
+                                return p.userId();
+                            }
 
-                        @Override
-                        public String getUsername() {
-                            return p.username();
-                        }
+                            @Override
+                            public String getUsername() {
+                                return p.username();
+                            }
 
-                        @Override
-                        public List<String> getPermissions() {
-                            return p.permissions();
-                        }
-                    };
-                    // registra no contexto via port (agnóstico)
-                    credentialContext.setAuthenticatedPrincipal(principal);
+                            @Override
+                            public List<String> getPermissions() {
+                                return p.permissions();
+                            }
+                        };
+                        // registra no contexto via port (agnóstico)
+                        credentialContext.setAuthenticatedPrincipal(principal);
+                    }
+                    case EXPIRED -> throw new TokenExpiredAuthException();
+                    case INVALID -> throw new TokenInvalidAuthException();
                 }
-                case EXPIRED -> throw new TokenExpiredAuthException();
-                case INVALID -> throw new TokenInvalidAuthException();
+            }catch(TokenExpiredAuthException|TokenInvalidAuthException ex) {
+                //para que o GlogalExceptionHandler consiga tratar exceções Expired e Invalid
+                resolver.resolveException(req, res, null, ex);
+                // Importante: retornar para não continuar a cadeia
+                return;
             }
         }
         chain.doFilter(req, res);
