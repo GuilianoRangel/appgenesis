@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/admin/users")
 @RequiredArgsConstructor
-@Tag(name = "AppGenesis - Security - Change User Password (Admin)", description = "Alterar a senha de um usuário")
+@Tag(name = "AppGenesis - Security - Change User Password - Admin", description = "Alterar a senha de um usuário")
 public class AdminPasswordController {
     private final ChangePasswordUseCase useCase;
 
