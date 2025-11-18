@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -21,6 +22,7 @@ import java.util.Optional;
 @Component
 @ConditionalOnProperty(name = "app.seed.enabled", havingValue = "true")
 @RequiredArgsConstructor
+@Order(0)
 public class SecuritySeedRunner implements ApplicationRunner {
 
     public static final String USER_CHANGE_OWN_PASSWORD = "USER_CHANGE_OWN_PASSWORD";
